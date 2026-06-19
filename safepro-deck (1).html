@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafePro — Team Dalan · Pfizer Digital & Technology Hackathon 2026</title>
+
+<!-- Fonts: Source Serif 4 (headlines) · DM Sans (body) · IBM Plex Mono (labels) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500;1,8..60,600&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   THEME TOKENS
+   ============================================================ */
+:root{
+  --navy:#1C2644; --navy-alt:#232F55;
+  --cream:#F0ECE3; --cream-alt:#E6E0D4;
+  --text-warm:#E2DCD0; --muted-d:#8A96A8; --hint-d:#4E5A6E;
+  --ink:#1A2030; --muted-l:#5A6270; --hint-l:#9AA0A8;
+  --gold:#C8A870; --border-d:#2E3D5C; --border-l:#CAC4B4;
+  --serif:'Source Serif 4', Georgia, serif;
+  --sans:'DM Sans', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', monospace;
+  --t-display:188px; --t-h2:58px;
+  --t-lead:28px; --t-body:22px; --t-label:16px;
+  --pad-x:150px; --pad-y:84px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ============================================================
+   FIXED 16:9 STAGE
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#10172b;}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:#10172b;}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+
+/* surfaces */
+.slide.dark{background:linear-gradient(175deg,#1d2848 0%, #1a2340 60%, #161d35 100%);color:var(--text-warm);}
+.slide.light{background:var(--cream);color:var(--ink);}
+.slide.dark::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:80px 80px;}
+
+.pad{position:relative;z-index:2;width:100%;height:100%;padding:var(--pad-y) var(--pad-x);display:grid;grid-template-rows:auto 1fr auto;}
+
+/* chrome + foot */
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;}
+.chrome{color:var(--muted-d);padding-bottom:18px;border-bottom:1px solid var(--border-d);}
+.foot{color:var(--muted-d);padding-top:18px;border-top:1px solid var(--border-d);}
+.slide.light .chrome,.slide.light .foot{color:var(--muted-l);border-color:var(--border-l);}
+.chrome .gold,.foot .gold{color:var(--gold);}
+
+/* type primitives */
+.kicker{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+h1.disp{font-family:var(--serif);font-weight:400;font-size:var(--t-display);line-height:.94;letter-spacing:-.02em;color:var(--cream);}
+h2.head{font-family:var(--serif);font-weight:600;font-size:var(--t-h2);line-height:1.1;letter-spacing:-.01em;}
+.slide.dark h2.head{color:var(--text-warm);} .slide.light h2.head{color:var(--ink);}
+em{font-style:italic;color:var(--gold);font-family:var(--serif);font-weight:inherit;}
+.lead{font-family:var(--sans);font-weight:400;font-size:var(--t-lead);line-height:1.5;}
+.slide.dark .lead{color:var(--muted-d);} .slide.light .lead{color:var(--muted-l);}
+
+ul.dash{list-style:none;}
+ul.dash li{position:relative;padding-left:42px;font-family:var(--sans);font-size:var(--t-body);line-height:1.45;margin-bottom:22px;}
+.slide.dark ul.dash li{color:var(--text-warm);} .slide.light ul.dash li{color:var(--ink);}
+ul.dash li::before{content:"—";position:absolute;left:0;top:0;color:var(--gold);font-family:var(--mono);}
+
+/* ====== COVER ====== */
+.cover .pad{display:block;}
+.cover .frame{position:absolute;top:64px;left:120px;right:120px;bottom:64px;border:1px solid rgba(200,168,112,.28);pointer-events:none;}
+.cover .frame::before{content:"";position:absolute;top:-5px;left:-5px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);}
+.cover .frame::after{content:"";position:absolute;bottom:-5px;right:-5px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);}
+.cover-motif{position:absolute;right:175px;top:300px;width:560px;opacity:.18;pointer-events:none;}
+.cover .toprow{position:absolute;top:102px;left:198px;right:198px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);}
+.cover .toprow .g{color:var(--gold);}
+.cover .khair{position:absolute;left:198px;right:198px;top:148px;height:1px;background:rgba(200,168,112,.3);}
+.cover .lock{position:absolute;left:198px;top:352px;max-width:1180px;}
+.cover .eyebrow{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);margin-bottom:30px;}
+.cover .goldrule{width:170px;height:2px;background:var(--gold);margin:40px 0 38px;}
+.cover .tag{font-family:var(--serif);font-size:42px;line-height:1.32;color:var(--text-warm);max-width:1060px;}
+.cover .tag em{font-style:italic;color:var(--gold);}
+.cover .meta{position:absolute;left:198px;bottom:150px;display:flex;align-items:stretch;}
+.cover .meta .cell{padding-right:56px;margin-right:56px;border-right:1px solid var(--hint-d);}
+.cover .meta .cell:last-child{border:none;}
+.cover .meta .lbl{font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);margin-bottom:10px;}
+.cover .meta .val{font-family:var(--serif);font-size:30px;color:var(--cream);}
+.cover .meta .val em{font-style:italic;color:var(--gold);}
+.cover .folio{position:absolute;right:198px;bottom:150px;font-family:var(--mono);font-size:58px;color:rgba(200,168,112,.45);}
+
+/* ====== layout helpers ====== */
+.stack{display:flex;flex-direction:column;justify-content:center;height:100%;}
+.two-col{display:grid;grid-template-columns:1.05fr .95fr;gap:90px;align-items:center;height:100%;}
+
+/* ====== STAT BAND (slide 2) ====== */
+.statband{display:grid;grid-template-columns:repeat(3,1fr);margin-top:6px;}
+.statband .s{padding:0 50px;border-right:1px solid var(--border-d);}
+.statband .s:first-child{padding-left:0;} .statband .s:last-child{border-right:none;padding-right:0;}
+.statband .num{font-family:var(--serif);font-weight:600;font-size:94px;line-height:1;letter-spacing:-.02em;color:var(--gold);}
+.statband .num small{font-size:46px;letter-spacing:0;}
+.statband .slabel{font-family:var(--sans);font-size:21px;line-height:1.42;color:var(--text-warm);margin-top:18px;max-width:360px;}
+.statband .ssrc{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--hint-d);margin-top:16px;text-transform:uppercase;}
+.callout{margin-top:48px;border-left:3px solid var(--gold);padding:16px 30px;max-width:1560px;}
+.callout p{font-family:var(--sans);font-size:23px;line-height:1.5;color:var(--text-warm);}
+.callout .src{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint-d);margin-top:10px;}
+.callout em{font-style:italic;color:var(--gold);font-family:var(--serif);}
+
+/* ====== SLIDE 3 protein image ====== */
+.protein{width:100%;max-width:540px;height:auto;display:block;margin:0 auto;}
+.pcap{font-family:var(--mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-l);margin-top:18px;text-align:center;}
+
+/* ====== SLIDE 4 architecture + roadmap ====== */
+.arch{display:grid;grid-template-columns:0.9fr auto 1.45fr auto 1.1fr;align-items:stretch;margin-top:6px;}
+.fstage{padding:26px 30px;border-top:1px solid var(--border-d);}
+.fstage:first-child{padding-left:0;}
+.fnum{font-family:var(--mono);font-size:13px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+.ftitle{font-family:var(--serif);font-size:28px;color:var(--text-warm);margin-bottom:14px;line-height:1.18;}
+.fitem{font-family:var(--sans);font-size:18px;color:var(--muted-d);line-height:1.46;}
+.fitem em{font-style:italic;color:var(--gold);font-family:var(--serif);}
+.farrow{align-self:center;font-family:var(--mono);font-size:30px;color:var(--border-d);padding:0 22px;}
+.tiers{display:flex;flex-direction:column;gap:10px;}
+.tier{border-left:3px solid var(--gold);padding:10px 16px;}
+.tier .tname{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+.tier .tdesc{font-family:var(--sans);font-size:16px;color:var(--muted-d);margin-top:4px;}
+.tier.pass{background:color-mix(in srgb, var(--gold) 26%, var(--navy));}
+.tier.review{background:color-mix(in srgb, var(--gold) 13%, var(--navy));}
+.tier.block{background:color-mix(in srgb, var(--gold) 5%, var(--navy));}
+.datasets{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--hint-d);text-transform:uppercase;margin-top:24px;}
+.datasets b{color:var(--muted-d);font-weight:500;}
+.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:26px;border-top:1px solid var(--border-d);padding-top:26px;}
+.phase .pn{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.phase .pt{font-family:var(--serif);font-size:25px;color:var(--text-warm);margin-bottom:9px;}
+.phase .pd{font-family:var(--sans);font-size:17px;line-height:1.45;color:var(--muted-d);}
+
+/* ====== SLIDE 5 three columns + icons ====== */
+.s5wrap{display:flex;flex-direction:column;height:100%;}
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;flex:1;min-height:0;}
+.tri .tcol{padding:0 54px;border-right:1px solid var(--border-l);height:330px;display:flex;flex-direction:column;justify-content:flex-start;}
+.tri .tcol:first-child{padding-left:0;} .tri .tcol:last-child{border-right:none;padding-right:0;}
+.s5note{font-family:var(--mono);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-l);text-align:center;padding-top:6px;margin-bottom:52px;}
+.s5note span{color:var(--hint-l);}
+.tri .icon{width:52px;height:52px;margin-bottom:24px;}
+.tri .icon svg{width:100%;height:100%;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.tri .tk{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
+.tri .tt{font-family:var(--serif);font-size:36px;line-height:1.16;color:var(--ink);margin-bottom:20px;}
+.tri .tb{font-family:var(--sans);font-size:20px;line-height:1.55;color:var(--muted-l);}
+
+/* ====== SLIDE 6 compare ====== */
+.compare{display:flex;flex-direction:column;width:100%;}
+.crow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:46px 0;border-bottom:1px solid var(--border-l);}
+.crow:last-child{border-bottom:none;}
+.crow .ck{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;}
+.crow .chal .ck{color:var(--muted-l);} .crow .mit .ck{color:var(--gold);}
+.crow .ctext{font-family:var(--serif);font-size:31px;line-height:1.24;color:var(--ink);}
+.crow .carrow{padding:0 64px;font-family:var(--mono);font-size:28px;color:var(--gold);}
+
+/* ====== SLIDE 7 close ====== */
+.close .pad{display:block;position:relative;}
+.close .lock{position:absolute;left:var(--pad-x);top:300px;max-width:1320px;}
+.close .kicker{margin-bottom:30px;}
+.close h2.head{font-size:88px;line-height:1.06;margin-bottom:46px;}
+.close ul.dash li{font-size:30px;margin-bottom:26px;color:var(--text-warm);}
+.close .foot{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:84px;}
+
+/* ====== reveal animations ====== */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0s);}
+.slide.visible .reveal{opacity:1;transform:translateY(0);}
+@media (prefers-reduced-motion:reduce){.reveal{transition-duration:.01ms;}}
+
+/* ====== deck chrome outside stage ====== */
+.deck-controls{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;display:flex;align-items:center;gap:18px;font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:#9aa6bd;}
+.deck-dots{display:flex;gap:9px;}
+.deck-dots .d{width:8px;height:8px;border-radius:50%;background:#3a4566;cursor:pointer;transition:background .2s;}
+.deck-dots .d.on{background:var(--gold);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;transition:opacity .3s;background:#222c49;color:#e6dcc6;border:1px solid var(--border-d);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{background:var(--gold);color:var(--navy);}
+.notes-panel{position:fixed;left:0;right:0;bottom:0;z-index:9000;background:rgba(16,21,38,.96);border-top:1px solid var(--border-d);color:#cdd5e6;font-family:var(--sans);font-size:18px;line-height:1.5;padding:22px 40px;transform:translateY(100%);transition:transform .3s var(--ease);}
+.notes-panel.show{transform:translateY(0);}
+.notes-panel .nk{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+[contenteditable="true"]{outline:1px dashed var(--gold);outline-offset:4px;cursor:text;}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- ============ SLIDE 1 — COVER ============ -->
+    <section class="slide dark cover active" data-notes="Open by introducing the team and the project in one breath: SafePro, a safe-by-design screening layer for AI-generated therapeutic proteins, from Team Dalan, on the computational pre-clinical drug development track. Then move into the problem.">
+      <div class="pad">
+        <div class="frame"></div>
+        <!-- faint protein structure motif -->
+        <svg class="cover-motif" viewBox="0 0 600 520" fill="none" aria-hidden="true">
+          <path d="M108 476 C 120 456, 130 450, 140 442" stroke="#C8A870" stroke-width="3" fill="none"/>
+          <g stroke="#1C2644" stroke-width="4">
+            <ellipse cx="140" cy="440" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 140 440)"/>
+            <ellipse cx="163" cy="407" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 163 407)"/>
+            <ellipse cx="186" cy="374" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 186 374)"/>
+            <ellipse cx="209" cy="341" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 209 341)"/>
+            <ellipse cx="231" cy="308" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 231 308)"/>
+            <ellipse cx="254" cy="275" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 254 275)"/>
+            <ellipse cx="277" cy="243" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 277 243)"/>
+            <ellipse cx="300" cy="210" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 300 210)"/>
+          </g>
+          <path d="M300 210 C 332 200, 344 220, 358 236" stroke="#C8A870" stroke-width="3" fill="none"/>
+          <g fill="#E2DCD0" stroke="#1C2644" stroke-width="2">
+            <polygon points="358,226 520,226 520,214 556,236 520,258 520,246 358,246"/>
+            <polygon points="372,286 520,286 520,274 556,296 520,318 520,306 372,306"/>
+            <polygon points="386,346 520,346 520,334 556,356 520,378 520,366 386,366"/>
+          </g>
+        </svg>
+
+        <div class="toprow reveal"><span><span class="g">§</span>&nbsp;&nbsp;Pfizer Digital &amp; Technology Hackathon 2026</span><span>Preliminary Round</span></div>
+        <div class="khair"></div>
+        <div class="lock">
+          <div class="eyebrow reveal" style="--d:.05s">Safe-by-design screening &amp; governance</div>
+          <h1 class="disp reveal" style="--d:.16s">Safe<em>Pro</em></h1>
+          <div class="goldrule reveal" style="--d:.3s"></div>
+          <p class="tag reveal" style="--d:.42s">Screening AI-designed proteins for developability and <em>biosecurity risk</em>, before synthesis.</p>
+        </div>
+        <div class="meta reveal" style="--d:.56s">
+          <div class="cell"><div class="lbl">Team</div><div class="val"><em>Dalan</em></div></div>
+          <div class="cell"><div class="lbl">Problem Statement</div><div class="val">Computational pre-clinical drug development</div></div>
+        </div>
+        <div class="folio reveal" style="--d:.56s">01</div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 2 — THE PROBLEM ============ -->
+    <section class="slide dark" data-notes="State the problem statement out loud: computational pre-clinical drug development. The core point: AI now designs proteins faster than labs can test them, so the work shifts to selection, and selection is where things break. Walk the three numbers, then land the biosecurity point: homology-based synthesis screening can miss AI-designed analogs of known toxins.">
+      <div class="pad">
+        <header class="chrome"><span>01 — The Problem</span><span><span class="gold">02</span> / 07</span></header>
+        <div class="stack">
+          <div class="kicker reveal">Problem statement · Computational pre-clinical drug development</div>
+          <h2 class="head reveal" style="--d:.1s;margin:24px 0 24px;max-width:1500px;">Choosing which candidates to make is the <em>bottleneck</em>.</h2>
+          <p class="lead reveal" style="--d:.2s;max-width:1380px;margin-bottom:54px;">AI designs faster than labs can test. Most fail on whether the molecule can be made.</p>
+
+          <div class="statband">
+            <div class="s reveal" style="--d:.3s">
+              <div class="num">90<small>%</small></div>
+              <div class="slabel">of clinical candidates fail</div>
+              <div class="ssrc">Acta Pharm. Sin. B, 2022</div>
+            </div>
+            <div class="s reveal" style="--d:.4s">
+              <div class="num">214M<small>+</small></div>
+              <div class="slabel">AI-predicted structures (300k in 2021)</div>
+              <div class="ssrc">AlphaFold DB, 2024</div>
+            </div>
+            <div class="s reveal" style="--d:.5s">
+              <div class="num"><small>~$</small>1B</div>
+              <div class="slabel">and 10 to 15 years per drug</div>
+              <div class="ssrc">ASBMB Today, 2022</div>
+            </div>
+          </div>
+
+          <div class="callout reveal" style="--d:.6s">
+            <p>AI can design toxin-like proteins that slip past <em>sequence-based</em> screening.</p>
+            <div class="src">Science, 2025</div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 3 — THE SOLUTION ============ -->
+    <section class="slide light" data-notes="Place SafePro in the workflow: it sits between AI design and the lab. Every generated candidate is reviewed; the makeable, safe ones move on, the risky ones are held. Point at the structure illustration to make the protein concrete, then read the three things it does.">
+      <div class="pad">
+        <header class="chrome"><span>02 — The Solution</span><span><span class="gold">03</span> / 07</span></header>
+        <div class="two-col">
+          <div>
+            <div class="kicker reveal">Where SafePro fits</div>
+            <h2 class="head reveal" style="--d:.1s;margin:24px 0 26px;">A checkpoint <em>before</em> synthesis.</h2>
+            <p class="lead reveal" style="--d:.2s;margin-bottom:40px;max-width:760px;">SafePro reviews each AI-designed candidate and ranks what's worth making.</p>
+            <ul class="dash">
+              <li class="reveal" style="--d:.3s">Ranks developability and manufacturability</li>
+              <li class="reveal" style="--d:.4s">Screens biosecurity by structure, not just sequence</li>
+              <li class="reveal" style="--d:.5s">Runs between design and synthesis</li>
+            </ul>
+          </div>
+          <div class="reveal" style="--d:.34s">
+            <!-- protein structure illustration -->
+            <svg class="protein" viewBox="0 0 600 520" fill="none" aria-hidden="true">
+              <path d="M108 476 C 120 456, 130 450, 140 442" stroke="#C8A870" stroke-width="3" fill="none"/>
+              <g stroke="#F0ECE3" stroke-width="4">
+                <ellipse cx="140" cy="440" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 140 440)"/>
+                <ellipse cx="163" cy="407" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 163 407)"/>
+                <ellipse cx="186" cy="374" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 186 374)"/>
+                <ellipse cx="209" cy="341" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 209 341)"/>
+                <ellipse cx="231" cy="308" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 231 308)"/>
+                <ellipse cx="254" cy="275" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 254 275)"/>
+                <ellipse cx="277" cy="243" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 277 243)"/>
+                <ellipse cx="300" cy="210" rx="44" ry="18" fill="#C8A870" transform="rotate(-52 300 210)"/>
+              </g>
+              <path d="M300 210 C 332 200, 344 220, 358 236" stroke="#C8A870" stroke-width="3" fill="none"/>
+              <g fill="#aeb6c4" stroke="#1C2644" stroke-width="2">
+                <polygon points="358,226 520,226 520,214 556,236 520,258 520,246 358,246"/>
+                <polygon points="372,286 520,286 520,274 556,296 520,318 520,306 372,306"/>
+                <polygon points="386,346 520,346 520,334 556,356 520,378 520,366 386,366"/>
+              </g>
+            </svg>
+            <div class="pcap">AI-designed therapeutic protein</div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 4 — BUILDING THE MVP ============ -->
+    <section class="slide dark" data-notes="This is the technical-feasibility slide. Walk the pipeline: a sequence plus a predicted structure from AlphaFold or ESMFold goes in; two models score it; developability uses biophysical tools and ESM-2 embeddings, biosecurity uses structure-based matching to known toxins because sequence search misses AI analogs; output is Pass, Review, or Block, every flag logged. Then the three phases: prototype on public data, validate on past candidates, pilot with internal assay data.">
+      <div class="pad">
+        <header class="chrome"><span>03 — Building the MVP</span><span><span class="gold">04</span> / 07</span></header>
+        <div class="stack" style="justify-content:flex-start;padding-top:18px;">
+          <div class="kicker reveal">How we build it</div>
+          <h2 class="head reveal" style="--d:.1s;margin:22px 0 34px;">From a sequence to a <em>defensible</em> decision.</h2>
+
+          <div class="arch">
+            <div class="fstage reveal" style="--d:.2s">
+              <div class="fnum">Input</div>
+              <div class="ftitle">A candidate</div>
+              <div class="fitem">Sequence + predicted structure (<em>AlphaFold</em>, ESMFold).</div>
+            </div>
+            <div class="farrow reveal" style="--d:.26s">→</div>
+            <div class="fstage reveal" style="--d:.32s">
+              <div class="fnum">Scoring · two models</div>
+              <div class="fitem" style="margin-bottom:14px;"><em>Developability</em>: aggregation, stability, immunogenicity. (TAP, CamSol, ESM-2)</div>
+              <div class="fitem"><em>Biosecurity</em>: structural match to known toxins. (ToxinPred, VFDB)</div>
+            </div>
+            <div class="farrow reveal" style="--d:.38s">→</div>
+            <div class="fstage reveal" style="--d:.44s">
+              <div class="fnum">Decision · logged</div>
+              <div class="tiers">
+                <div class="tier pass"><div class="tname">Pass</div><div class="tdesc">Cleared</div></div>
+                <div class="tier review"><div class="tname">Review</div><div class="tdesc">Human review</div></div>
+                <div class="tier block"><div class="tname">Block</div><div class="tdesc">Held back</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="datasets reveal" style="--d:.54s">Public training data: <b>PDB · UniProt/Swiss-Prot · SAbDab/Thera-SAbDab</b>. Every flag is logged.</div>
+
+          <div class="roadmap">
+            <div class="phase reveal" style="--d:.6s">
+              <div class="pn">Phase 1 · Prototype</div>
+              <div class="pt">Build both scorers</div>
+              <div class="pd">Both scorers, on public data.</div>
+            </div>
+            <div class="phase reveal" style="--d:.68s">
+              <div class="pn">Phase 2 · Validate</div>
+              <div class="pt">Replay real candidates</div>
+              <div class="pd">Score past candidates, tune thresholds.</div>
+            </div>
+            <div class="phase reveal" style="--d:.76s">
+              <div class="pn">Phase 3 · Pilot</div>
+              <div class="pt">Run it in one team</div>
+              <div class="pd">Internal assay data, one team.</div>
+            </div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 5 — PFIZER FIT ============ -->
+    <section class="slide light" data-notes="Three ways it fits Pfizer. Pipeline: it strengthens Stage 1 discovery across biologics, vaccines and oncology. Manufacturing: failing weak candidates early protects capacity at the Global Supply Sites. Values: audit logs and human review put integrity and transparency into the decision, which Pfizer states explicitly. Note that developability, not efficacy, is the leading cause of biologic attrition, so this is squarely on target.">
+      <div class="pad">
+        <header class="chrome"><span>04 — Pfizer Fit</span><span><span class="gold">05</span> / 07</span></header>
+        <div class="s5wrap">
+          <div style="padding-top:6px;">
+            <div class="kicker reveal">Why Pfizer</div>
+            <h2 class="head reveal" style="--d:.1s;margin-top:24px;">Built for Pfizer's <em>pipeline</em> and its values.</h2>
+          </div>
+          <div class="tri">
+          <div class="tcol reveal" style="--d:.22s">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v5l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3.5L14 8V3"/><line x1="7.5" y1="14.5" x2="16.5" y2="14.5"/></svg></div>
+            <div class="tk">Pipeline</div>
+            <div class="tt">Strengthens Stage&nbsp;1 discovery</div>
+            <div class="tb">Triage across biologics, vaccines, oncology.</div>
+          </div>
+          <div class="tcol reveal" style="--d:.34s">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 21V10l6 4V10l6 4V7l5 3v11z"/><line x1="2" y1="21" x2="22" y2="21"/></svg></div>
+            <div class="tk">Manufacturing</div>
+            <div class="tt">De-risks the supply chain early</div>
+            <div class="tb">Weak designs fail before the Supply Sites.</div>
+          </div>
+          <div class="tcol reveal" style="--d:.46s">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <div class="tk">Values</div>
+            <div class="tt">Responsible AI, by design</div>
+            <div class="tb">Audit logs and human review, built in.</div>
+          </div>
+          </div>
+          <div class="s5note reveal" style="--d:.55s">Developability drives most biologic attrition. <span>Comms. Biology, 2024</span></div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 6 — ROADBLOCKS ============ -->
+    <section class="slide light" data-notes="Be candid about feasibility, judges reward it. Two real risks: getting good training data, and false positives. For data, start public and scale to internal. For false positives, a human reviews every flag so a good candidate is never dropped quietly.">
+      <div class="pad">
+        <header class="chrome"><span>05 — Feasibility</span><span><span class="gold">06</span> / 07</span></header>
+        <div class="stack">
+          <div class="kicker reveal">What stands in the way</div>
+          <h2 class="head reveal" style="--d:.1s;margin:24px 0 44px;">The two <em>hard</em> parts.</h2>
+          <div class="compare">
+            <div class="crow reveal" style="--d:.24s">
+              <div class="chal"><div class="ck">Challenge</div><div class="ctext">Getting good training data</div></div>
+              <div class="carrow">→</div>
+              <div class="mit"><div class="ck">How we answer it</div><div class="ctext">Public data first, internal data in the pilot</div></div>
+            </div>
+            <div class="crow reveal" style="--d:.38s">
+              <div class="chal"><div class="ck">Challenge</div><div class="ctext">False positives</div></div>
+              <div class="carrow">→</div>
+              <div class="mit"><div class="ck">How we answer it</div><div class="ctext">A human reviews every flag</div></div>
+            </div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 7 — OUTCOMES / CLOSE ============ -->
+    <section class="slide dark close" data-notes="Close on what changes if it works: fewer candidates fail late, a safer shortlist reaches the lab, and review is part of the workflow from day one. Restate the team and thank the judges.">
+      <div class="pad">
+        <div class="lock">
+          <div class="kicker reveal">What changes if this works</div>
+          <h2 class="head reveal" style="--d:.12s">Fewer dead ends, and a <em>safer</em> shortlist.</h2>
+          <ul class="dash">
+            <li class="reveal" style="--d:.26s">Fewer late failures</li>
+            <li class="reveal" style="--d:.38s">A safer shortlist into the lab</li>
+            <li class="reveal" style="--d:.5s">Review built into the workflow</li>
+          </ul>
+        </div>
+        <footer class="foot reveal" style="--d:.64s"><span class="gold">SafePro · Team Dalan</span><span>Pfizer Digital &amp; Technology Hackathon 2026 — Thank you</span></footer>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- deck chrome outside stage -->
+<div class="deck-controls">
+  <span id="counter">01 / 07</span>
+  <div class="deck-dots" id="dots"></div>
+  <span style="color:#5d6885">N notes · ← →</span>
+</div>
+<div class="edit-hotzone" id="hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)">✎ edit</button>
+<div class="notes-panel" id="notesPanel"><div class="nk">Speaker note</div><div id="notesBody"></div></div>
+
+<script>
+/* Slide controller: fixed-stage scaling + navigation + notes + edit */
+class Deck{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.i=0;this.stage=document.getElementById('deckStage');
+    this.counter=document.getElementById('counter');
+    this.notesPanel=document.getElementById('notesPanel');
+    this.notesBody=document.getElementById('notesBody');this.notesOpen=false;
+    this.buildDots();this.scale();window.addEventListener('resize',()=>this.scale());
+    this.keys();this.touch();this.wheel();this.show(0);
+  }
+  scale(){const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    const x=(window.innerWidth-1920*f)/2,y=(window.innerHeight-1080*f)/2;
+    this.stage.style.transform=`translate(${x}px,${y}px) scale(${f})`;}
+  buildDots(){const w=document.getElementById('dots');
+    this.slides.forEach((s,k)=>{const d=document.createElement('div');d.className='d';
+      d.addEventListener('click',()=>this.show(k));w.appendChild(d);});
+    this.dots=[...w.children];}
+  show(n){this.i=Math.max(0,Math.min(n,this.slides.length-1));
+    this.slides.forEach((s,k)=>{const on=k===this.i;s.classList.toggle('active',on);s.classList.toggle('visible',on);});
+    this.dots.forEach((d,k)=>d.classList.toggle('on',k===this.i));
+    this.counter.textContent=String(this.i+1).padStart(2,'0')+' / 07';
+    if(this.notesOpen)this.renderNotes();}
+  next(){this.show(this.i+1);} prev(){this.show(this.i-1);}
+  renderNotes(){this.notesBody.textContent=this.slides[this.i].getAttribute('data-notes')||'—';}
+  toggleNotes(){this.notesOpen=!this.notesOpen;this.notesPanel.classList.toggle('show',this.notesOpen);if(this.notesOpen)this.renderNotes();}
+  keys(){document.addEventListener('keydown',e=>{
+    if(e.target.getAttribute && e.target.getAttribute('contenteditable')==='true')return;
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+    else if(e.key==='n'||e.key==='N'){this.toggleNotes();}
+    else if(e.key==='e'||e.key==='E'){editor.toggle();}});}
+  touch(){let x0=null;
+    this.stage.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+    this.stage.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;
+      if(Math.abs(dx)>50){dx<0?this.next():this.prev();}x0=null;},{passive:true});}
+  wheel(){let lock=false;window.addEventListener('wheel',e=>{if(lock||Math.abs(e.deltaY)<24)return;
+    lock=true;e.deltaY>0?this.next():this.prev();setTimeout(()=>lock=false,650);},{passive:true});}
+}
+class Editor{
+  constructor(){this.isActive=false;
+    this.sel='h1,h2,p,li,div.val,div.tt,div.tb,div.ctext,div.ftitle,div.fitem,div.slabel,div.pt,div.pd,div.lead';
+    this.btn=document.getElementById('editToggle');
+    this.btn.addEventListener('click',()=>this.toggle());this.hover();}
+  toggle(){this.isActive=!this.isActive;this.btn.classList.toggle('active',this.isActive);
+    this.btn.textContent=this.isActive?'✓ done':'✎ edit';
+    document.querySelector('.slide.active').querySelectorAll(this.sel).forEach(el=>el.setAttribute('contenteditable',this.isActive));}
+  hover(){const hz=document.getElementById('hotzone');let t=null;
+    const show=()=>{clearTimeout(t);this.btn.classList.add('show');};
+    const hide=()=>{t=setTimeout(()=>{if(!this.isActive)this.btn.classList.remove('show');},400);};
+    hz.addEventListener('mouseenter',show);hz.addEventListener('mouseleave',hide);
+    this.btn.addEventListener('mouseenter',()=>clearTimeout(t));this.btn.addEventListener('mouseleave',hide);
+    hz.addEventListener('click',()=>this.toggle());}
+}
+const deck=new Deck();const editor=new Editor();
+</script>
+</body>
+</html>

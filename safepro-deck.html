@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafePro — Team Dalan · Pfizer Digital & Technology Hackathon 2026</title>
+
+<!-- ===== FONTS: Source Serif 4 (voice) · DM Sans (substance) · IBM Plex Mono (metadata) ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500;1,8..60,600&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   THEME TOKENS — Signal system (edit here to retune the deck)
+   ============================================================ */
+:root{
+  --navy:#1C2644; --navy-alt:#232F55;
+  --cream:#F0ECE3; --cream-alt:#E6E0D4;
+  --text-warm:#E2DCD0; --muted-d:#8A96A8; --hint-d:#4E5A6E;
+  --ink:#1A2030; --muted-l:#5A6270; --hint-l:#9AA0A8;
+  --gold:#C8A870; --border-d:#2E3D5C; --border-l:#CAC4B4;
+
+  --serif:'Source Serif 4', Georgia, serif;
+  --sans:'DM Sans', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', monospace;
+
+  /* type scale authored at the 1920x1080 stage */
+  --t-display:188px; --t-h1:104px; --t-h2:60px; --t-h3:38px;
+  --t-lead:29px; --t-body:22px; --t-caption:17px; --t-label:16px; --t-stat:104px;
+
+  --pad-x:150px; --pad-y:86px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ============================================================
+   FIXED 16:9 STAGE (from viewport-base.css)
+   Slides authored at 1920x1080, whole stage scaled by JS.
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#10172b;}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:#10172b;}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;}
+
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;
+  visibility:hidden;opacity:0;pointer-events:none;}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+
+/* surfaces */
+.slide.dark{background:linear-gradient(175deg,#1d2848 0%, #1a2340 60%, #161d35 100%);color:var(--text-warm);}
+.slide.light{background:var(--cream);color:var(--ink);}
+/* 80px grid fingerprint on dark slides only */
+.slide.dark::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:80px 80px;}
+
+/* inner padding grid: chrome / body / foot */
+.pad{position:relative;z-index:2;width:100%;height:100%;
+  padding:var(--pad-y) var(--pad-x);
+  display:grid;grid-template-rows:auto 1fr auto;}
+
+/* ============================================================
+   CHROME (top + foot) — mono label left, counter right, hairline
+   ============================================================ */
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;}
+.chrome{color:var(--muted-d);padding-bottom:18px;border-bottom:1px solid var(--border-d);}
+.foot{color:var(--muted-d);padding-top:18px;border-top:1px solid var(--border-d);margin-top:0;}
+.slide.light .chrome,.slide.light .foot{color:var(--muted-l);border-color:var(--border-l);}
+.chrome .gold,.foot .gold{color:var(--gold);}
+
+/* ============================================================
+   TYPE PRIMITIVES
+   ============================================================ */
+.kicker{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);}
+.rule{width:36px;height:1px;background:var(--gold);}
+h1.disp{font-family:var(--serif);font-weight:400;font-size:var(--t-display);line-height:.94;letter-spacing:-.02em;color:var(--cream);}
+h2.head{font-family:var(--serif);font-weight:600;font-size:var(--t-h2);line-height:1.1;letter-spacing:-.01em;}
+.slide.dark h2.head{color:var(--text-warm);} .slide.light h2.head{color:var(--ink);}
+h3.sub{font-family:var(--serif);font-weight:500;font-size:var(--t-h3);line-height:1.28;}
+em{font-style:italic;color:var(--gold);font-family:var(--serif);font-weight:inherit;}
+.lead{font-family:var(--sans);font-weight:400;font-size:var(--t-lead);line-height:1.5;}
+.slide.dark .lead{color:var(--muted-d);} .slide.light .lead{color:var(--muted-l);}
+.body{font-family:var(--sans);font-size:var(--t-body);line-height:1.6;}
+
+/* em-dash gold bullets */
+ul.dash{list-style:none;}
+ul.dash li{position:relative;padding-left:42px;font-family:var(--sans);font-size:var(--t-body);
+  line-height:1.45;margin-bottom:22px;}
+.slide.dark ul.dash li{color:var(--text-warm);} .slide.light ul.dash li{color:var(--ink);}
+ul.dash li::before{content:"—";position:absolute;left:0;top:0;color:var(--gold);font-family:var(--mono);}
+
+/* stat numeral */
+.stat{font-family:var(--serif);font-weight:600;font-size:var(--t-stat);line-height:1;letter-spacing:-.02em;color:var(--gold);}
+
+/* ============================================================
+   COVER (slide 1) — chromeless
+   ============================================================ */
+.cover .pad{display:block;}
+.cover .frame{position:absolute;top:64px;left:120px;right:120px;bottom:64px;border:1px solid rgba(200,168,112,.28);pointer-events:none;}
+.cover .frame::before{content:"";position:absolute;top:-5px;left:-5px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);}
+.cover .frame::after{content:"";position:absolute;bottom:-5px;right:-5px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);}
+.cover .toprow{position:absolute;top:102px;left:198px;right:198px;display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);}
+.cover .toprow .g{color:var(--gold);}
+.cover .khair{position:absolute;left:198px;right:198px;top:148px;height:1px;background:rgba(200,168,112,.3);}
+.cover .lock{position:absolute;left:198px;top:352px;max-width:1340px;}
+.cover .eyebrow{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);margin-bottom:30px;}
+.cover .goldrule{width:170px;height:2px;background:var(--gold);margin:40px 0 38px;}
+.cover .tag{font-family:var(--serif);font-size:42px;line-height:1.32;color:var(--text-warm);max-width:1240px;}
+.cover .tag em{font-style:italic;color:var(--gold);}
+.cover .meta{position:absolute;left:198px;bottom:150px;display:flex;align-items:stretch;}
+.cover .meta .cell{padding-right:56px;margin-right:56px;border-right:1px solid var(--hint-d);}
+.cover .meta .cell:last-child{border:none;}
+.cover .meta .lbl{font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-d);margin-bottom:10px;}
+.cover .meta .val{font-family:var(--serif);font-size:30px;color:var(--cream);}
+.cover .meta .val em{font-style:italic;color:var(--gold);}
+.cover .folio{position:absolute;right:198px;bottom:150px;font-family:var(--mono);font-size:58px;color:rgba(200,168,112,.45);}
+
+/* ============================================================
+   CONTENT LAYOUTS
+   ============================================================ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center;height:100%;}
+.col-head .kicker{margin-bottom:26px;}
+.col-head h2.head{margin-bottom:30px;}
+.col-head .lead{margin-bottom:40px;max-width:720px;}
+
+/* bottleneck + diagrams sit in a panel */
+.diagram{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.diagram svg{width:100%;height:auto;max-height:640px;}
+
+/* slide 3 — placement timeline */
+.timeline{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:18px;position:relative;}
+.timeline .spine{position:absolute;left:4%;right:4%;top:50%;height:1px;background:var(--border-l);}
+.tnode{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;width:22%;}
+.tnode .dot{width:18px;height:18px;border-radius:50%;background:var(--hint-l);border:1px solid var(--border-l);}
+.tnode.key .dot{width:30px;height:30px;background:var(--gold);box-shadow:0 0 0 8px rgba(200,168,112,.18);}
+.tnode .tlabel{margin-top:24px;font-family:var(--serif);font-size:30px;color:var(--ink);}
+.tnode.key .tlabel{color:var(--ink);}
+.tnode .tnote{margin-top:8px;font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l);}
+.tnode.key .tnote{color:var(--gold);}
+
+/* slide 4 — architecture flow */
+.flow{display:grid;grid-template-columns:1fr auto 1.15fr auto 1.15fr;align-items:stretch;gap:0;width:100%;}
+.fstage{padding:30px 34px;border-top:1px solid var(--border-d);}
+.fstage .fnum{font-family:var(--mono);font-size:14px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;}
+.fstage .ftitle{font-family:var(--serif);font-size:30px;color:var(--text-warm);margin-bottom:14px;line-height:1.2;}
+.fstage .fitem{font-family:var(--sans);font-size:19px;color:var(--muted-d);line-height:1.5;}
+.farrow{align-self:center;font-family:var(--mono);font-size:34px;color:var(--border-d);padding:0 26px;}
+.tiers{display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+.tier{border-left:3px solid var(--gold);padding:12px 18px;}
+.tier .tname{font-family:var(--mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+.tier .tdesc{font-family:var(--sans);font-size:17px;color:var(--muted-d);margin-top:5px;}
+.tier.pass{background:color-mix(in srgb, var(--gold) 26%, var(--navy));}
+.tier.review{background:color-mix(in srgb, var(--gold) 13%, var(--navy));}
+.tier.block{background:color-mix(in srgb, var(--gold) 5%, var(--navy));}
+
+/* slide 5 — three columns */
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;height:100%;align-items:center;}
+.tri .tcol{padding:0 54px;border-right:1px solid var(--border-l);height:58%;display:flex;flex-direction:column;justify-content:flex-start;}
+.tri .tcol:first-child{padding-left:0;} .tri .tcol:last-child{border-right:none;padding-right:0;}
+.tri .tk{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;}
+.tri .tt{font-family:var(--serif);font-size:38px;line-height:1.16;color:var(--ink);margin-bottom:22px;}
+.tri .tb{font-family:var(--sans);font-size:21px;line-height:1.55;color:var(--muted-l);}
+
+/* slide 6 — compare rows */
+.compare{display:flex;flex-direction:column;gap:0;width:100%;}
+.crow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:48px 0;border-bottom:1px solid var(--border-l);}
+.crow:last-child{border-bottom:none;}
+.crow .ck{font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;}
+.crow .chal .ck{color:var(--muted-l);} .crow .mit .ck{color:var(--gold);}
+.crow .ctext{font-family:var(--serif);font-size:32px;line-height:1.24;color:var(--ink);}
+.crow .mit .ctext{color:var(--ink);}
+.crow .carrow{padding:0 64px;font-family:var(--mono);font-size:30px;color:var(--gold);}
+
+/* slide 7 — closing statement */
+.close .pad{display:block;position:relative;}
+.close .lock{position:absolute;left:var(--pad-x);top:300px;max-width:1300px;}
+.close .kicker{margin-bottom:30px;}
+.close h2.head{font-size:96px;line-height:1.04;margin-bottom:46px;}
+.close ul.dash li{font-size:30px;margin-bottom:26px;color:var(--text-warm);}
+.close .foot{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:86px;}
+
+/* ============================================================
+   REVEAL ANIMATIONS — fire when slide gains .visible
+   ============================================================ */
+.reveal{opacity:0;transform:translateY(26px);
+  transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0s);}
+.slide.visible .reveal{opacity:1;transform:translateY(0);}
+.grow{transform:scaleX(0);transform-origin:left;transition:transform .8s var(--ease);transition-delay:var(--d,0s);}
+.slide.visible .grow{transform:scaleX(1);}
+@media (prefers-reduced-motion:reduce){
+  .reveal,.grow{transition-duration:.01ms;}
+}
+
+/* ============================================================
+   DECK CHROME OUTSIDE STAGE — counter, dots, edit, notes
+   ============================================================ */
+.deck-controls{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;
+  display:flex;align-items:center;gap:18px;font-family:var(--mono);font-size:13px;
+  letter-spacing:.14em;color:#9aa6bd;}
+.deck-dots{display:flex;gap:9px;}
+.deck-dots .d{width:8px;height:8px;border-radius:50%;background:#3a4566;cursor:pointer;transition:background .2s;}
+.deck-dots .d.on{background:var(--gold);}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;opacity:0;pointer-events:none;
+  transition:opacity .3s;background:#222c49;color:#e6dcc6;border:1px solid var(--border-d);
+  border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:13px;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{background:var(--gold);color:var(--navy);}
+.notes-panel{position:fixed;left:0;right:0;bottom:0;z-index:9000;background:rgba(16,21,38,.96);
+  border-top:1px solid var(--border-d);color:#cdd5e6;font-family:var(--sans);font-size:18px;
+  line-height:1.5;padding:22px 40px;transform:translateY(100%);transition:transform .3s var(--ease);}
+.notes-panel.show{transform:translateY(0);}
+.notes-panel .nk{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+[contenteditable="true"]{outline:1px dashed var(--gold);outline-offset:4px;cursor:text;}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- ===================== SLIDE 1 — COVER ===================== -->
+    <section class="slide dark cover active" data-notes="Welcome the judges. State the project plainly: SafePro — a safe-by-design screening layer for AI-generated therapeutic proteins, from Team Dalan. One line on why it matters, then move on.">
+      <div class="pad">
+        <div class="frame"></div>
+        <div class="toprow reveal"><span><span class="g">§</span>&nbsp;&nbsp;Pfizer Digital &amp; Technology Hackathon 2026</span><span>Preliminary Round</span></div>
+        <div class="khair"></div>
+        <div class="lock">
+          <div class="eyebrow reveal" style="--d:.05s">Safe-by-design screening &amp; governance</div>
+          <h1 class="disp reveal" style="--d:.16s">Safe<em>Pro</em></h1>
+          <div class="goldrule reveal" style="--d:.3s"></div>
+          <p class="tag reveal" style="--d:.42s">A pre-synthesis review layer that ranks protein candidates by developability and flags <em>biosecurity risk</em> before any lab work begins.</p>
+        </div>
+        <div class="meta reveal" style="--d:.56s">
+          <div class="cell"><div class="lbl">Team</div><div class="val"><em>Dalan</em></div></div>
+          <div class="cell"><div class="lbl">Problem Statement</div><div class="val">Computational pre-clinical drug development</div></div>
+        </div>
+        <div class="folio reveal" style="--d:.56s">01</div>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 2 — THE CHALLENGE ===================== -->
+    <section class="slide dark" data-notes="Make the core point: generating candidates is no longer the hard part — responsibly choosing which ones to make is. Three pressures: AI volume outpaces lab capacity; manufacturing problems surface late after money is spent; safety review lags the pace of design.">
+      <div class="pad">
+        <header class="chrome"><span>01 — The Challenge</span><span><span class="gold">02</span> / 07</span></header>
+        <div class="two-col">
+          <div class="col-head">
+            <div class="kicker reveal">The pre-clinical bottleneck</div>
+            <h2 class="head reveal" style="--d:.1s">Generating candidates is easy. <em>Choosing</em> them isn't.</h2>
+            <p class="lead reveal" style="--d:.2s">Generative models now propose novel protein structures far faster than any lab can synthesize and validate them.</p>
+            <ul class="dash">
+              <li class="reveal" style="--d:.3s">AI generation outpaces lab synthesis capacity</li>
+              <li class="reveal" style="--d:.4s">Manufacturing problems surface late, after resources are spent</li>
+              <li class="reveal" style="--d:.5s">Safety and governance review lags behind the pace of design</li>
+            </ul>
+          </div>
+          <div class="diagram reveal" style="--d:.35s">
+            <svg viewBox="0 0 720 600" fill="none">
+              <!-- many candidates (left) -->
+              <g fill="#6d7a92">
+                <!-- 5 cols x 7 rows of small marks -->
+                <!-- generated grid -->
+                <g>
+                  <circle cx="40" cy="70" r="6"/><circle cx="90" cy="70" r="6"/><circle cx="140" cy="70" r="6"/><circle cx="190" cy="70" r="6"/><circle cx="240" cy="70" r="6"/>
+                  <circle cx="40" cy="140" r="6"/><circle cx="90" cy="140" r="6"/><circle cx="140" cy="140" r="6"/><circle cx="190" cy="140" r="6"/><circle cx="240" cy="140" r="6"/>
+                  <circle cx="40" cy="210" r="6"/><circle cx="90" cy="210" r="6"/><circle cx="140" cy="210" r="6"/><circle cx="190" cy="210" r="6"/><circle cx="240" cy="210" r="6"/>
+                  <circle cx="40" cy="280" r="6"/><circle cx="90" cy="280" r="6"/><circle cx="140" cy="280" r="6"/><circle cx="190" cy="280" r="6"/><circle cx="240" cy="280" r="6"/>
+                  <circle cx="40" cy="350" r="6"/><circle cx="90" cy="350" r="6"/><circle cx="140" cy="350" r="6"/><circle cx="190" cy="350" r="6"/><circle cx="240" cy="350" r="6"/>
+                  <circle cx="40" cy="420" r="6"/><circle cx="90" cy="420" r="6"/><circle cx="140" cy="420" r="6"/><circle cx="190" cy="420" r="6"/><circle cx="240" cy="420" r="6"/>
+                  <circle cx="40" cy="490" r="6"/><circle cx="90" cy="490" r="6"/><circle cx="140" cy="490" r="6"/><circle cx="190" cy="490" r="6"/><circle cx="240" cy="490" r="6"/>
+                </g>
+              </g>
+              <!-- funnel walls converging to a narrow neck -->
+              <path d="M300 60 L470 250" stroke="#46537a" stroke-width="1.5"/>
+              <path d="M300 540 L470 350" stroke="#46537a" stroke-width="1.5"/>
+              <!-- gold gate at neck -->
+              <line x1="470" y1="250" x2="470" y2="350" stroke="#C8A870" stroke-width="3"/>
+              <text x="486" y="240" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">SYNTHESIS</text>
+              <text x="486" y="262" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">CAPACITY</text>
+              <!-- few pass through (right) -->
+              <g fill="#C8A870">
+                <circle cx="560" cy="290" r="6"/><circle cx="610" cy="290" r="6"/><circle cx="660" cy="290" r="6"/>
+                <circle cx="585" cy="320" r="6"/><circle cx="635" cy="320" r="6"/>
+              </g>
+              <!-- late failures dropping away (faded X marks) -->
+              <g stroke="#5a4a3a" stroke-width="2" opacity="0.7">
+                <line x1="545" y1="470" x2="565" y2="490"/><line x1="565" y1="470" x2="545" y2="490"/>
+                <line x1="615" y1="500" x2="635" y2="520"/><line x1="635" y1="500" x2="615" y2="520"/>
+              </g>
+              <text x="540" y="555" fill="#7d8aa0" font-family="IBM Plex Mono, monospace" font-size="14" letter-spacing="2">LATE FAILURES</text>
+            </svg>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 3 — THE SOLUTION ===================== -->
+    <section class="slide light" data-notes="Introduce SafePro as a pre-synthesis checkpoint that sits between AI design and the lab. It ranks candidates for developability and flags biosecurity risk before anything is synthesized — so only the safest, most makeable designs move forward.">
+      <div class="pad">
+        <header class="chrome"><span>02 — The Solution</span><span><span class="gold">03</span> / 07</span></header>
+        <div style="display:flex;flex-direction:column;justify-content:center;height:100%;">
+          <div class="kicker reveal">A checkpoint, not a brake</div>
+          <h2 class="head reveal" style="--d:.1s;max-width:1500px;margin:26px 0 28px;">SafePro reviews every design <em>before</em> it reaches the lab.</h2>
+          <p class="lead reveal" style="--d:.2s;max-width:1280px;margin-bottom:80px;">It scores each candidate for developability and manufacturability, and screens it for biosecurity and toxicity risk — turning a flood of AI designs into a short, defensible shortlist.</p>
+          <div class="timeline reveal" style="--d:.34s">
+            <div class="spine"></div>
+            <div class="tnode"><div class="dot"></div><div class="tlabel">AI Design</div><div class="tnote">Generation</div></div>
+            <div class="tnode key"><div class="dot"></div><div class="tlabel">SafePro</div><div class="tnote">Pre-synthesis checkpoint</div></div>
+            <div class="tnode"><div class="dot"></div><div class="tlabel">Lab Synthesis</div><div class="tnote">Wet-lab</div></div>
+            <div class="tnode"><div class="dot"></div><div class="tlabel">Clinical Path</div><div class="tnote">Downstream</div></div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 4 — MVP WORKFLOW ===================== -->
+    <section class="slide dark" data-notes="Walk the flow left to right: a protein sequence and structure come in; two modules score it — developability and biosecurity; the system returns Pass, Review, or Block, with a human expert on every Review; and every flagged decision is written to an audit log. That last part is the governance backbone.">
+      <div class="pad">
+        <header class="chrome"><span>03 — The MVP</span><span><span class="gold">04</span> / 07</span></header>
+        <div style="display:flex;flex-direction:column;justify-content:center;height:100%;">
+          <div class="kicker reveal">How it works</div>
+          <h2 class="head reveal" style="--d:.1s;margin:26px 0 60px;">From sequence to a <em>defensible</em> decision.</h2>
+          <div class="flow">
+            <div class="fstage reveal" style="--d:.2s">
+              <div class="fnum">Input</div>
+              <div class="ftitle">Candidate</div>
+              <div class="fitem">Protein sequence and structural data from upstream AI design models.</div>
+            </div>
+            <div class="farrow reveal" style="--d:.26s">→</div>
+            <div class="fstage reveal" style="--d:.32s">
+              <div class="fnum">Scoring</div>
+              <div class="ftitle">Two modules</div>
+              <div class="fitem">Developability — aggregation &amp; stability.<br>Biosecurity — toxicity &amp; hazard patterns.</div>
+            </div>
+            <div class="farrow reveal" style="--d:.38s">→</div>
+            <div class="fstage reveal" style="--d:.44s">
+              <div class="fnum">Decision &amp; audit</div>
+              <div class="tiers">
+                <div class="tier pass"><div class="tname">Pass</div><div class="tdesc">Ready for synthesis</div></div>
+                <div class="tier review"><div class="tname">Review</div><div class="tdesc">Human-in-the-loop expert escalation</div></div>
+                <div class="tier block"><div class="tname">Block</div><div class="tdesc">Flagged for severe liabilities</div></div>
+              </div>
+            </div>
+          </div>
+          <p class="body reveal" style="--d:.56s;color:var(--hint-d);margin-top:34px;font-family:var(--mono);font-size:15px;letter-spacing:.12em;text-transform:uppercase;">Every flag is written to a secure audit log with reviewer annotations.</p>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 5 — PFIZER ALIGNMENT ===================== -->
+    <section class="slide light" data-notes="Connect to Pfizer three ways: it strengthens Stage 1 discovery across biologics, vaccines, and oncology; it protects manufacturing capacity by failing weak candidates early, before Global Supply Sites are committed; and it embeds integrity, transparency, and responsible AI into the decision itself — values Pfizer states explicitly.">
+      <div class="pad">
+        <header class="chrome"><span>04 — Pfizer Fit</span><span><span class="gold">05</span> / 07</span></header>
+        <div style="display:flex;flex-direction:column;height:100%;">
+          <div style="margin-top:8px;">
+            <div class="kicker reveal">Why Pfizer</div>
+            <h2 class="head reveal" style="--d:.1s;margin-top:24px;">Built for Pfizer's <em>pipeline</em> and its values.</h2>
+          </div>
+          <div class="tri" style="margin-top:-10px;">
+            <div class="tcol reveal" style="--d:.22s">
+              <div class="tk">Pipeline</div>
+              <div class="tt">Strengthens Stage&nbsp;1 discovery</div>
+              <div class="tb">Triages candidates across biologics, vaccines, and oncology programs before they advance toward trials.</div>
+            </div>
+            <div class="tcol reveal" style="--d:.34s">
+              <div class="tk">Manufacturing</div>
+              <div class="tt">De-risks the supply chain early</div>
+              <div class="tb">Filtering out poorly developable designs protects capacity at Pfizer's Global Supply Sites.</div>
+            </div>
+            <div class="tcol reveal" style="--d:.46s">
+              <div class="tk">Values</div>
+              <div class="tt">Responsible AI, by design</div>
+              <div class="tb">Audit logs and human review embed integrity and transparency directly into the decision.</div>
+            </div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 6 — ROADBLOCKS ===================== -->
+    <section class="slide light" data-notes="Be honest about feasibility — judges reward this. The two real risks are data access and false positives. Mitigations: start with public protein databases and scale to internal assay data; put a human expert on every flag so false positives never block a good candidate silently.">
+      <div class="pad">
+        <header class="chrome"><span>05 — Feasibility</span><span><span class="gold">06</span> / 07</span></header>
+        <div style="display:flex;flex-direction:column;justify-content:center;height:100%;">
+          <div class="kicker reveal">What stands in the way</div>
+          <h2 class="head reveal" style="--d:.1s;margin:24px 0 44px;">We know where it gets <em>hard</em> — and how we'd answer.</h2>
+          <div class="compare">
+            <div class="crow reveal" style="--d:.24s">
+              <div class="chal"><div class="ck">Challenge</div><div class="ctext">Access to robust, normalized training data</div></div>
+              <div class="carrow">→</div>
+              <div class="mit"><div class="ck">Mitigation</div><div class="ctext">Start with public protein databases, then scale to internal assay data in a pilot phase</div></div>
+            </div>
+            <div class="crow reveal" style="--d:.38s">
+              <div class="chal"><div class="ck">Challenge</div><div class="ctext">Managing false positives</div></div>
+              <div class="carrow">→</div>
+              <div class="mit"><div class="ck">Mitigation</div><div class="ctext">Human-in-the-loop expert review on every flag, so no good candidate is dropped silently</div></div>
+            </div>
+          </div>
+        </div>
+        <footer class="foot"><span class="gold">SafePro</span><span>Team Dalan</span></footer>
+      </div>
+    </section>
+
+    <!-- ===================== SLIDE 7 — OUTCOMES / CLOSE ===================== -->
+    <section class="slide dark close" data-notes="Close on the vision: fewer late dead-ends, a safer path for discovery, and responsible AI that is built into the workflow rather than bolted on. Restate the team and thank the judges. Keep it warm and confident.">
+      <div class="pad">
+        <div class="lock">
+          <div class="kicker reveal">What success looks like</div>
+          <h2 class="head reveal" style="--d:.12s">Safe, scalable <em>innovation</em>.</h2>
+          <ul class="dash">
+            <li class="reveal" style="--d:.26s">Fewer dead-ends late in development</li>
+            <li class="reveal" style="--d:.38s">A safer path for pre-clinical discovery</li>
+            <li class="reveal" style="--d:.5s">Responsible AI built <em style="font-size:inherit">into</em> the workflow, not bolted on</li>
+          </ul>
+        </div>
+        <footer class="foot reveal" style="--d:.64s"><span class="gold">SafePro · Team Dalan</span><span>Pfizer Digital &amp; Technology Hackathon 2026 — Thank you</span></footer>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- deck chrome outside the stage -->
+<div class="deck-controls">
+  <span id="counter">01 / 07</span>
+  <div class="deck-dots" id="dots"></div>
+  <span style="color:#5d6885">N notes · ← →</span>
+</div>
+<div class="edit-hotzone" id="hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)">✎ edit</button>
+<div class="notes-panel" id="notesPanel"><div class="nk">Speaker note</div><div id="notesBody"></div></div>
+
+<script>
+/* ============================================================
+   SLIDE CONTROLLER — fixed-stage scaling + navigation
+   ============================================================ */
+class Deck{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.i=0;
+    this.stage=document.getElementById('deckStage');
+    this.counter=document.getElementById('counter');
+    this.notesPanel=document.getElementById('notesPanel');
+    this.notesBody=document.getElementById('notesBody');
+    this.notesOpen=false;
+    this.buildDots();
+    this.scale();window.addEventListener('resize',()=>this.scale());
+    this.keys();this.touch();this.wheel();
+    this.show(0);
+  }
+  scale(){
+    const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+    this.stage.style.transform=`translate(${x}px,${y}px) scale(${f})`;
+  }
+  buildDots(){
+    const w=document.getElementById('dots');
+    this.slides.forEach((s,k)=>{
+      const d=document.createElement('div');d.className='d';
+      d.addEventListener('click',()=>this.show(k));w.appendChild(d);
+    });
+    this.dots=[...w.children];
+  }
+  show(n){
+    this.i=Math.max(0,Math.min(n,this.slides.length-1));
+    this.slides.forEach((s,k)=>{const on=k===this.i;s.classList.toggle('active',on);s.classList.toggle('visible',on);});
+    this.dots.forEach((d,k)=>d.classList.toggle('on',k===this.i));
+    const num=String(this.i+1).padStart(2,'0');
+    this.counter.textContent=num+' / 07';
+    if(this.notesOpen)this.renderNotes();
+  }
+  next(){this.show(this.i+1);} prev(){this.show(this.i-1);}
+  renderNotes(){this.notesBody.textContent=this.slides[this.i].getAttribute('data-notes')||'—';}
+  toggleNotes(){this.notesOpen=!this.notesOpen;this.notesPanel.classList.toggle('show',this.notesOpen);if(this.notesOpen)this.renderNotes();}
+  keys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute && e.target.getAttribute('contenteditable')==='true')return;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown'){e.preventDefault();this.next();}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();this.prev();}
+      else if(e.key==='n'||e.key==='N'){this.toggleNotes();}
+      else if(e.key==='e'||e.key==='E'){editor.toggle();}
+    });
+  }
+  touch(){
+    let x0=null;
+    this.stage.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+    this.stage.addEventListener('touchend',e=>{
+      if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;
+      if(Math.abs(dx)>50){dx<0?this.next():this.prev();}x0=null;
+    },{passive:true});
+  }
+  wheel(){
+    let lock=false;
+    window.addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<24)return;
+      lock=true;e.deltaY>0?this.next():this.prev();
+      setTimeout(()=>lock=false,650);
+    },{passive:true});
+  }
+}
+
+/* ============================================================
+   INLINE EDIT MODE — toggle text editing (E or ✎ button)
+   ============================================================ */
+class Editor{
+  constructor(){
+    this.isActive=false;this.sel='h1,h2,h3,p,li,div.val,div.tt,div.tb,div.ctext,div.ftitle,div.fitem,span';
+    this.btn=document.getElementById('editToggle');
+    this.btn.addEventListener('click',()=>this.toggle());
+    this.hover();
+  }
+  toggle(){
+    this.isActive=!this.isActive;
+    this.btn.classList.toggle('active',this.isActive);
+    this.btn.textContent=this.isActive?'✓ done':'✎ edit';
+    const cur=document.querySelector('.slide.active');
+    cur.querySelectorAll(this.sel).forEach(el=>{
+      if(el.children.length===0||el.classList.contains('val')) el.setAttribute('contenteditable',this.isActive);
+    });
+  }
+  hover(){
+    const hz=document.getElementById('hotzone');let t=null;
+    const show=()=>{clearTimeout(t);this.btn.classList.add('show');};
+    const hide=()=>{t=setTimeout(()=>{if(!this.isActive)this.btn.classList.remove('show');},400);};
+    hz.addEventListener('mouseenter',show);hz.addEventListener('mouseleave',hide);
+    this.btn.addEventListener('mouseenter',()=>clearTimeout(t));this.btn.addEventListener('mouseleave',hide);
+    hz.addEventListener('click',()=>this.toggle());
+  }
+}
+
+const deck=new Deck();
+const editor=new Editor();
+</script>
+</body>
+</html>
